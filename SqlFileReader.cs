@@ -7,12 +7,12 @@ using System.Threading.Tasks;
 
 namespace SqlFileReader
 {
-    internal class SqlFileReader
+    internal static class SqlFileReader
     {
         public static string[] ReadSqlFile(string filePath)
         {
-            string sql = Regex.Replace(File.ReadAllText(filePath), @"(\r\n|\t|\s+)",@"~$1~",RegexOptions.IgnoreCase);
-            string sqlmod = Regex.Replace(sql, @"~~",@"~",RegexOptions.IgnoreCase);
+            string sql = Regex.Replace(File.ReadAllText(filePath), @"(\r\n|\t|\s+)", @"~$1~", RegexOptions.IgnoreCase);
+            string sqlmod = Regex.Replace(sql, @"~~", @"~", RegexOptions.IgnoreCase);
             string[] sqloutput = sqlmod.Split('~');
             for (int i = 0; i < sqloutput.Length; i++)
             {
@@ -27,7 +27,8 @@ namespace SqlFileReader
             {
                 sb.Append(statement);
             }
-            return sb.ToString().Replace("\\r\\n", "\r\n").Replace("\\t", "\t");
+            string sqlmod = sb.ToString().Replace("\\r\\n", "\r\n").Replace("\\t", "\t");
+            return sqlmod;
         }
         public static Dictionary<int, string> GetNonEmptyStrings(string[] array)
         {
@@ -45,30 +46,40 @@ namespace SqlFileReader
 
         public static void PrintDictionaryContents(Dictionary<int, string> dictionary)
         {
-            for (int i = 0; i < dictionary.Count; i++)
+            int i;
+            for (i = 0; i < dictionary.Count; i++)
             {
                 int key = dictionary.Keys.ElementAt(i);
                 if (dictionary[key] == "||")
                 {
-                    dictionary[dictionary.Keys.ElementAt(i-1)] = Regex.Replace(dictionary[dictionary.Keys.ElementAt(i - 1)],@"(\S+)",@"CONCAT($1");
+                    dictionary[dictionary.Keys.ElementAt(i - 1)] = Regex.Replace(dictionary[dictionary.Keys.ElementAt(i - 1)], @"(\S+)", @"CONCAT($1");
+                    dictionary[dictionary.Keys.ElementAt(i)] = Regex.Replace(dictionary[dictionary.Keys.ElementAt(i)], @"(\|\|)", @",");
+                    i += 2;
+                    if (i < dictionary.Count)
+                    {
+                        while (dictionary[dictionary.Keys.ElementAt(i)] == "||")
+                        {
+                            dictionary[dictionary.Keys.ElementAt(i)] = Regex.Replace(dictionary[dictionary.Keys.ElementAt(i)], @"\|\|", @",");
+                            i += 2;
+                            if (i >= dictionary.Count)
+                            {
+                                break;
+                            }
+                        }
+                        dictionary[dictionary.Keys.ElementAt(i - 1)] = Regex.Replace(dictionary[dictionary.Keys.ElementAt(i - 1)], @"(\S+)", @"$1)");
+                    }
                 }
             }
-
-            for (int i = 0; i < dictionary.Count; i++)
-            {
-                int key = dictionary.Keys.ElementAt(i);
-                string value = dictionary[key];
-                Console.WriteLine("Key: {0}, Value: {1}", key, value);
-            }
-
-            //foreach (KeyValuePair<int, string> entry in dictionary)
-            //{
-            //    Console.WriteLine("Key: {0}, Value: {1}", entry.Key, entry.Value);
-            //}
-            //Console.ReadLine();
         }
-
-
-
+        public static void UpdateArrayWithDictionaryValues(string[] sqlText, Dictionary<int, string> dictionary)
+        {
+            for (int i = 0; i < sqlText.Length; i++)
+            {
+                if (dictionary.ContainsKey(i))
+                {
+                    sqlText[i] = dictionary[i];
+                }
+            }
+        }
     }
 }

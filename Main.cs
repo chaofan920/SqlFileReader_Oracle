@@ -11,6 +11,8 @@
             Dictionary<int, string> dictionary = SqlFileReader.GetNonEmptyStrings(sqlText);
 
             SqlFileReader.PrintDictionaryContents(dictionary);
+            SqlFileReader.UpdateArrayWithDictionaryValues(sqlText, dictionary);
+            SqlFileReader.ReconstructSqlFile(sqlText);
 
             Console.ReadLine();
         }

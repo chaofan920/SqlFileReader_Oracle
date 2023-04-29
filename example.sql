@@ -4,7 +4,20 @@ select
     table.b
 	||
     lpad(hello,1,'2')
+	||
+    lpad(hello,2,'3')
+	||
+    lpad(hello,3,'4')
+	||
+    lpad(hello,4,'5')
 from
     table7
 where
-    table2.col = '123';
+4564
+    lpad(hello,1,'2')
+	||
+    lpad(hello,2,'3')
+	||
+    lpad(hello,3,'4')
+	||
+    lpad(hello,4,'5')
