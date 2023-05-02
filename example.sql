@@ -13,7 +13,6 @@ select
 from
     table7
 where
-4564
     lpad(hello,1,'2')
 	||
     lpad(hello,2,'3')

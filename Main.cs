@@ -6,15 +6,19 @@
         {
             //MainClass mainClass = new MainClass();
             string filePath = @"..\..\..\example.sql";
-            string[] sqlText = SqlFileReader.ReadSqlFile(filePath);
+            string filePathMod = @"..\..\..\examplemod.sql";
+            List<string> sqlTextBefore = SqlFileReader.ReadSqlFileToList(filePath);
 
-            Dictionary<int, string> dictionary = SqlFileReader.GetNonEmptyStrings(sqlText);
+            Dictionary<int, string> dictionary = SqlFileReader.GetNoEmptyStrings(sqlTextBefore);
 
-            SqlFileReader.PrintDictionaryContents(dictionary);
-            SqlFileReader.UpdateArrayWithDictionaryValues(sqlText, dictionary);
-            SqlFileReader.ReconstructSqlFile(sqlText);
+            List<int> modLines = SqlFileReader.DictionaryContents(dictionary);
+            List<string> sqlTextAfter = SqlFileReader.UpdateSqlTextWithDictionaryValues(sqlTextBefore, dictionary);
+            SqlFileReader.InsertLineToList(sqlTextAfter, sqlTextBefore,modLines);
+            string modsql = SqlFileReader.ListToSqlText(sqlTextAfter);
+            File.WriteAllText(filePathMod, modsql); // 将内容写入文件
 
-            Console.ReadLine();
+            Console.Write(modsql);
+            //Console.ReadLine();
         }
     }
 }
